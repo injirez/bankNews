@@ -9,6 +9,8 @@ linkTinkoff = "https://newssearch.yandex.ru/yandsearch?text=%D1%82%D0%B8%D0%BD%D
 linkVtb = "https://newssearch.yandex.ru/yandsearch?text=%D0%B2%D1%82%D0%B1+%D0%B1%D0%B0%D0%BD%D0%BA&rpt=nnews2&rel=tm"
 bankNames = ['Tinkoff', 'Vtb']
 bankLinks = [linkTinkoff, linkVtb]
+with open("res.json", "r") as readFile:
+    data = json.load(readFile)
 # proxies = {'http': 'http://45.169.163.217:8080',
 #         'https': 'http://200.69.84.125:8080'}
 # user_agent = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:50.0) '
@@ -34,8 +36,8 @@ def getData(html, counter):
             'bankName': bankNames[counter],
             'link': link
         } 
-        for a in range(len(res)):
-            if bank['link'] == res[a]['link']:
+        for a in range(len(data)):
+            if bank['link'] == data[a]['link']:
                 print("Error, repeating news: ", bank)
                 repeatCheck = True
         if repeatCheck == False:
