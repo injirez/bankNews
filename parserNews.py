@@ -5,8 +5,8 @@ import time
 import json
 
 res = []
-linkTinkoff = "https://newssearch.yandex.ru/yandsearch?text=%D1%82%D0%B8%D0%BD%D1%8C%D0%BA%D0%BE%D1%84%D1%84+%D0%B1%D0%B0%D0%BD%D0%BA&rpt=nnews2&grhow=clutop&rel=rel"
-linkVtb = "https://newssearch.yandex.ru/yandsearch?text=%D0%B2%D1%82%D0%B1&rpt=nnews2&grhow=clutop&rel=rel"
+linkTinkoff = "https://newssearch.yandex.ru/yandsearch?text=%D1%82%D0%B8%D0%BD%D1%8C%D0%BA%D0%BE%D1%84%D1%84+%D0%B1%D0%B0%D0%BD%D0%BA&rpt=nnews2&rel=tm"
+linkVtb = "https://newssearch.yandex.ru/yandsearch?text=%D0%B2%D1%82%D0%B1+%D0%B1%D0%B0%D0%BD%D0%BA&rpt=nnews2&rel=tm"
 bankNames = ['Tinkoff', 'Vtb']
 bankLinks = [linkTinkoff, linkVtb]
 # proxies = {'http': 'http://45.169.163.217:8080',
@@ -22,32 +22,42 @@ def getHtml(bankLink):
 
 
 def getData(html, counter):
+    repeatCheck = False
     soup = BeautifulSoup(html.content, 'html.parser')
-    # print(soup.prettify())
+    print(soup.prettify())
+    time.sleep(5)
     allNews = soup.findAll('div', {'class': 'document__title'})
     for news in allNews:
-        # time.sleep(4)
+        time.sleep(6)
         link = news.find('a').get('href')
         bank = {
             'bankName': bankNames[counter],
             'link': link
         } 
-        res.append(bank)
-        # time.sleep(20)
+        for a in range(len(res)):
+            if bank['link'] == res[a]['link']:
+                print("Error, repeating news: ", bank)
+                repeatCheck = True
+        if repeatCheck == False:
+            res.append(bank)
+        else:
+            repeatCheck = False
+        with open('res.json', 'w') as file:
+            json.dump(res, file, indent=2, ensure_ascii=False)
 
 
 def main():
-    for i in range(0, len(bankLinks)):
-        html = getHtml(bankLinks[i])
-        getData(html, i)
+    while True:
+        for i in range(0, len(bankLinks)):
+            html = getHtml(bankLinks[i])
+            getData(html, i)
+            time.sleep(20)
 
-    with open('res.json', 'w') as file:
-        json.dump(res, file, indent=2, ensure_ascii=False)
-    print(res)
+    
 
 
 if __name__ == '__main__':
-    main()
+        main()
 
 
 # print(soup.prettify())
