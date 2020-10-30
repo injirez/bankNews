@@ -21,7 +21,7 @@ def getHtml(bankLink, proxies):
     
 
 
-def getData(html, counterBankName):
+def getData(html, counterBankName, counterProxy):
     with open("res.json", "r") as readFile:
         data = json.load(readFile)
     repeatCheck = False
@@ -29,7 +29,7 @@ def getData(html, counterBankName):
     # print(soup.prettify())
     time.sleep(5)
     allNews = soup.findAll('div', {'class': 'document__title'})
-    if allNews != []:
+    if allNews != None:
         for news in allNews:
             time.sleep(6)
             link = news.find('a').get('href')
@@ -49,7 +49,9 @@ def getData(html, counterBankName):
             with open('res.json', 'w') as file:
                 json.dump(res, file, indent=2, ensure_ascii=False)
         else:
-            print('Error, yandex banned you')
+            print('Error, yandex banned you, trying next proxies...', allProxies[counterProxy])
+            counterProxy += 1
+        return counterProxy
             
             
 
@@ -60,21 +62,16 @@ def main():
     z = 0
     while True:
         for i in range(0, len(bankLinks)):
-            if z >= len(allProxies):
-                z = 0
             try:
                 html = getHtml(bankLinks[i], allProxies[z])
-                soup = BeautifulSoup(html.content, 'html.parser')
-                allNews = soup.findAll('div', {'class': 'document__title'})
-                
-                if allNews != []:
-                    getData(html, i)
-                else:
-                    print('Error, yandex banned you, trying next proxies...', allProxies[z])
-                    z += 1
+                chok = getData(html, i, z)
+                z = chok
             except requests.exceptions.ProxyError:
                 print('Bad proxy connection, changing proxy...', allProxies[z])
                 z += 1 
+            if z >= len(allProxies):
+                z = 0
+            print(chok)
             print(z)
             time.sleep(20)
 
